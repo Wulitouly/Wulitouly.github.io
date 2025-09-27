@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贰万UCLA店缺货统计系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍽️ 贰万UCLA店缺货统计系统</h1>
+            <p>员工可以随时上报缺货情况，系统自动分类统计</p>
+        </header>
+
+        <div class="main-content">
+            <!-- 缺货信息输入区域 -->
+            <div class="input-section">
+                <h2>📝 上报缺货情况</h2>
+                <form id="shortageForm" class="shortage-form">
+                    <div class="form-group">
+                        <label for="productName">产品名称 *</label>
+                        <input type="text" id="productName" name="productName" required 
+                               placeholder="例如：肘子肉（单次只填报只写一项）">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">产品类别 *</label>
+                        <select id="category" name="category" required>
+                            <option value="">请选择类别</option>
+                            <option value="肉类&肉汤">🥩 肉类&肉汤</option>
+                            <option value="关东煮&卤味">🍢 关东煮&卤味</option>
+                            <option value="主食">🍚 主食</option>
+                            <option value="蔬菜">🥬 蔬菜</option>
+                            <option value="调料">🧂 调料</option>
+                            <option value="饮品">🥤 饮品</option>
+                            <option value="包装用具">📦 包装用具</option>
+                            <option value="其他">📦 其他</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shortageLevel">缺货程度 *</label>
+                        <select id="shortageLevel" name="shortageLevel" required>
+                            <option value="">请选择缺货程度</option>
+                            <option value="完全缺货">🔴 完全缺货（备注说明剩余）</option>
+                            <option value="严重">🔵 严重缺货（备注说明剩余）</option>
+                            <option value="轻微">🟡 轻微缺货 (3-5天用量)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reporter">上报人 *</label>
+                        <input type="text" id="reporter" name="reporter" required 
+                               placeholder="请输入您的姓名">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">备注信息</label>
+                        <textarea id="notes" name="notes" rows="3" 
+                                  placeholder="补充说明，如 只剩一盒"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">📤 提交缺货信息</button>
+                </form>
+            </div>
+
+            <!-- 实时显示区域 -->
+            <div class="display-section">
+                <h2>📊 今日缺货统计</h2>
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalShortages">0</span>
+                        <span class="stat-label">总缺货项</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="urgentShortages">0</span>
+                        <span class="stat-label">紧急缺货</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="pendingRestock">0</span>
+                        <span class="stat-label">待补货</span>
+                    </div>
+                </div>
+                
+                <div class="recent-shortages">
+                    <h3>📋 当日上报</h3>
+                    <div id="recentList" class="shortage-list">
+                        <p class="no-data">暂无缺货记录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导出功能 -->
+        <div class="export-section">
+            <h2>📋 数据导出</h2>
+            <div class="export-buttons">
+                <button id="exportExcel" class="export-btn">📊 导出Excel报表</button>
+                <button id="exportSummary" class="export-btn">📝 导出汇总报告</button>
+                <button id="historyData" class="export-btn">📚 历史数据</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改/删除弹窗 -->
+    <div id="actionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>选择操作</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>请选择要对这条缺货记录进行的操作：</p>
+                <div class="modal-actions">
+                    <button id="editBtn" class="modal-btn edit-btn">
+                        <span class="btn-text">修改</span>
+                    </button>
+                    <button id="deleteBtn" class="modal-btn delete-btn">
+                        <span class="btn-text">删除</span>
+                    </button>
+                    <button id="markRestockedBtn" class="modal-btn restock-btn">
+                        <span class="btn-text">标记已补货</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史数据弹窗 -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content history-modal">
+            <div class="modal-header">
+                <h3>📚 历史缺货记录</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="history-controls">
+                    <select id="historyDateSelect" class="history-select">
+                        <option value="">选择日期查看</option>
+                    </select>
+                    <button id="exportHistoryBtn" class="modal-btn edit-btn">📊 导出历史数据</button>
+                </div>
+                <div id="historyContent" class="history-content">
+                    <p class="no-data">请选择日期查看历史记录</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
